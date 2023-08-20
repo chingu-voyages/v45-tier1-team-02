@@ -33,16 +33,37 @@ function fetchData() {
     });
 }
 
+// let input = document.getElementById("inputSearchBar");
+// input.addEventListener("submit", (e) => {
+//   e.preventDefault();
+//   console.log("form submitted");
+//   let input = document.getElementById("inputBox");
+//   let data = localStorage.getItem("response");
+
+//   if (data != undefined) {
+//     console.log(input);
+//     const foundObject = data.find((item) => item.name === input.value);
+//     if (foundObject) {
+//       console.log("Object found:", foundObject);
+//     } else {
+//       console.log("Object not found");
+//     }
+//   }
+// });
+
 let input = document.getElementById("inputSearchBar");
 input.addEventListener("submit", (e) => {
   e.preventDefault();
   console.log("form submitted");
-  let input = document.getElementById("inputBox");
+  
+  let inputBox = document.getElementById("inputBox");
   let data = localStorage.getItem("response");
 
   if (data != undefined) {
-    console.log(input);
-    const foundObject = obj.find((item) => item.name === input.value);
+    data = JSON.parse(data); // Parse the stored data
+    console.log(data.length)
+    console.log(inputBox.value);
+    const foundObject = data.find((item) => item.name === inputBox.value);
     if (foundObject) {
       console.log("Object found:", foundObject);
     } else {
