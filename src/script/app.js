@@ -55,13 +55,21 @@ let input = document.getElementById("inputSearchBar");
 input.addEventListener("submit", (e) => {
   e.preventDefault();
   console.log("form submitted");
-  
-  let inputBox = document.getElementById("inputBox");
   let data = localStorage.getItem("response");
+  let inputBox = document.getElementById("inputBox");
 
   if (data != undefined) {
     data = JSON.parse(data); // Parse the stored data
     console.log(data.length)
+
+for(const item of data){
+  for(const key in item){
+    if(item.hasOwnProperty(key) && item[key] == inputBox.value){
+      
+      console.log(item)
+    }
+  }
+}
     console.log(inputBox.value);
     const foundObject = data.find((item) => item.name === inputBox.value);
     if (foundObject) {
