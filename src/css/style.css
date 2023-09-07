@@ -1,0 +1,41 @@
+.navbar{
+    background-color: #22252D;
+
+}
+.hero__section{
+    background-color: #22252D;
+}
+.hero__section__text__count .imgs{
+    width: 40px;
+}
+.search{
+    background-color: #22252D;
+}
+
+.items-controller,
+		.search{
+			flex-shrink: 0;
+			display: flex;
+			align-content: center;
+			align-items: center;
+
+		}
+		select{
+		 	padding: 2px;
+	    	margin: 0 10px;
+	   		outline: none;
+	    	cursor: pointer;
+	    	border: none;
+	    	background:red;
+		}
+		
+
+
+		
+		.pagination.active {
+            color: #fff;
+            background: #47d808;
+        }
+		.hidden {
+            display: none;
+        }

@@ -1,17 +1,23 @@
-function fetchData() {
-  if(localStorage.getItem("response") == null){    
-    fetch("https://data.nasa.gov/resource/gh4g-9sfh.json")
-      .then((response) => response.json())
-      .then((res) => {
-        localStorage.setItem("response", JSON.stringify(res));
-      });
-  }
-}
+let tbody = document.querySelector("tbody");
+let pageUL = document.querySelector(".pagination");
+let paginationNumbers = document.querySelector(".pagination1");
+let perPage = document.querySelector("#itemPerPage");
+let preButton = document.getElementById("prev-button");
+let nextButton = document.getElementById("next-button");
+let tr = tbody.querySelectorAll("tr");
+let pageLimit = 120;
+let pageCount = 1;
+let currentPage = 3;
 
-let data = JSON.parse(localStorage.getItem("response"));
-const createRows = (data) => {
+const createRows = (initial, last) => {
   let tbody = document.getElementById("tbody");
-  for (let i = 0; i < data.length; i++) {
+  const hasChildElements = tbody.hasChildNodes();
+
+  if (hasChildElements) {
+    tbody.innerHTML = "";
+  }
+
+  for (let i = initial - 1; i < last; i++) {
     let row = `
     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
     <td  class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">${
@@ -31,49 +37,6 @@ const createRows = (data) => {
     tbody.innerHTML += row;
   }
 };
-createRows(data)
-let input = document.getElementById("inputSearchBar");
-input.addEventListener("submit", (e) => {
-  e.preventDefault();
-  console.log("form submitted");
-  let data = localStorage.getItem("response");
-  let inputBox = document.getElementById("inputBox");
-
-  if (data != undefined) {
-    data = JSON.parse(data); // Parse the stored data
-    console.log(data.length);
-
-    for (const item of data) {
-      for (const key in item) {
-        if (item.hasOwnProperty(key) && item[key] == inputBox.value) {
-          console.log(item);
-          // console.log(item.year.format("D-MM-YYYY"));
-        }
-      }
-    }
-    console.log(inputBox.value);
-    const foundObject = data.find((item) => item.name === inputBox.value);
-    if (foundObject) {
-      console.log("Object found:", foundObject);
-      createRows(foundObject)
-    } else {
-      console.log("Object not found");
-    }
-  }
-});
-
-let tbody = document.querySelector("tbody");
-let pageUL = document.querySelector(".pagination");
-let paginationNumbers = document.querySelector(".pagination1");
-let perPage = document.querySelector("#itemPerPage");
-let preButton = document.getElementById("prev-button");
-let nextButton = document.getElementById("next-button");
-let tr = tbody.querySelectorAll("tr");
-console.log(tr.length);
-let pageLimit = 120;
-let pageCount = Math.ceil(tr.length / pageLimit);
-let currentPage = 3;
-
 perPage.onchange = giveTrPerPage;
 
 function giveTrPerPage() {
@@ -104,7 +67,7 @@ const handlePageButton = () => {
     enalbeButton(nextButton);
   }
 };
-// handlePageButton()
+
 const handleActivePageNumber = () => {
   document.querySelectorAll("pagination").forEach((button) => {
     button.classList.remove("active");
@@ -132,15 +95,27 @@ const getPaginationNumber = () => {
   }
   console.log(pageCount);
 };
+const setCurrentPage = (pageNum, data) => {
+  // new code
+  if (pageNum == 1) {
+    const initial = pageNum;
+    const last = pageNum * 10;
+    createRows(initial, last, data);
+    console.log(initial, last);
+  } else {
+    const initial = (pageNum - 1) * 10 + 1;
+    const last = pageNum * 10;
+    createRows(initial, last, data);
+    console.log(initial, last);
+  }
+  // end here
 
-const setCurrentPage = (pageNum) => {
   currentPage = pageNum;
   handleActivePageNumber();
-  handlePageButton();
 
   const prevRange = (pageNum - 1) * pageLimit;
   const currRange = pageNum * pageLimit;
-
+  //
   tr.forEach((item, index) => {
     item.classList.add("hidden");
     if (index < currRange && index >= prevRange) {
@@ -149,23 +124,72 @@ const setCurrentPage = (pageNum) => {
   });
 };
 
-window.addEventListener("load", () => {
-  getPaginationNumber();
-  setCurrentPage(1);
+let input = document.getElementById("inputSearchBar");
+input.addEventListener("submit", (e) => {
+  e.preventDefault();
+  console.log("form submitted");
+  let inputBox = document.getElementById("inputBox");
 
-  preButton.addEventListener("click", () => {
-    setCurrentPage(currentPage - 1);
-  });
-  nextButton.addEventListener("click", () => {
-    setCurrentPage(currentPage + 1);
-  });
-  document.querySelectorAll(".pagination").forEach((button) => {
-    const pageIndex = Number(button.getAttribute("page-index"));
+  if (data != undefined) {
+    data = JSON.parse(data); 
+    console.log(data.length);
 
-    if (pageIndex) {
-      button.addEventListener("click", () => {
-        setCurrentPage(pageIndex);
-      });
+    for (const item of data) {
+      for (const key in item) {
+        if (item.hasOwnProperty(key) && item[key] == inputBox.value) {
+          console.log(item);
+        }
+      }
     }
-  });
+    console.log(inputBox.value);
+    const foundObject = data.find((item) => item.name === inputBox.value);
+    if (foundObject) {
+      console.log("Object found:", foundObject);
+      createRows(foundObject);
+    } else {
+      console.log("Object not found");
+    }
+  }
 });
+
+function fetchData() {
+  return fetch("data.json")
+    .then((response) => response.json())
+    .then((res) => {
+      data = res;
+      return data;
+    });
+}
+function Example() {
+  console.log("example");
+}
+fetchData()
+  .then((fetchedData) => {
+    console.log(fetchedData);
+    getPaginationNumber();
+    setCurrentPage(1, fetchData);
+
+    preButton.addEventListener("click", () => {
+      console.log("previous button has beenn clicked");
+      setCurrentPage(currentPage - 1, fetchData);
+    });
+    nextButton.addEventListener("click", () => {
+      let tbody = document.getElementById("tbody");
+      tbody.innerHTML += "";
+
+      setCurrentPage(currentPage + 1, fetchData);
+      console.log("next button has beenn clicked");
+    });
+    document.querySelectorAll(".pagination").forEach((button) => {
+      const pageIndex = Number(button.getAttribute("page-index"));
+
+      if (pageIndex) {
+        button.addEventListener("click", () => {
+          setCurrentPage(pageIndex);
+        });
+      }
+    });
+  })
+  .catch((error) => {
+    console.error("Error fetching data:", error);
+  });
